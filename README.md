@@ -6,7 +6,6 @@ Static assets for `mdtools.pl` — single-file HTML tools + JSON data.
 
 - `index.html` — main app (single-file, static, deployable anywhere)
 - `data.json` — data source, fetched by the app at runtime
-- `KALKULATOR-PROMPT.md` — assistant prompt for pricing calculations
 
 ## Local dev
 
