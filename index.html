@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Masywny Dom — Generator ofert</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --line:#2a2f3a;
+    --txt:#e8eaed; --muted:#9aa3b2; --accent:#4f8cff; --accent2:#3aa675;
+    --danger:#e0524f; --radius:12px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;
+    background:var(--bg);color:var(--txt);line-height:1.5}
+  header{position:sticky;top:0;z-index:10;background:var(--panel);
+    border-bottom:1px solid var(--line);padding:14px 20px;
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+  header h1{font-size:18px;margin:0;display:flex;gap:8px;align-items:center}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px}
+  main{max-width:920px;margin:0 auto;padding:20px}
+  button{cursor:pointer;border:1px solid var(--line);background:var(--panel2);
+    color:var(--txt);padding:8px 14px;border-radius:10px;font-size:14px;
+    transition:.12s;font-family:inherit}
+  button:hover{border-color:var(--accent);background:#222838}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+  button.primary:hover{background:#3c7bf0}
+  button.good{background:var(--accent2);border-color:var(--accent2);color:#fff}
+  button.danger{color:var(--danger);border-color:#3a2a2a}
+  button.danger:hover{background:#2a1d1d;border-color:var(--danger)}
+  button.sm{padding:5px 10px;font-size:13px}
+
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .tab{padding:9px 18px;border-radius:999px;font-weight:600}
+  .tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  .subtabs{display:flex;gap:8px;flex-wrap:wrap;margin:-6px 0 18px;align-items:center}
+  .subtabs::before{content:"Wersja:";color:var(--muted);font-size:13px;font-weight:600;margin-right:2px}
+  .srvstat{font-size:12px;padding:5px 10px;border-radius:8px;border:1px solid var(--line);background:#0b0d11;color:var(--muted);white-space:nowrap}
+  .srvstat[data-kind="ok"]{color:#9ad9b6;border-color:#2a5a40}
+  .srvstat[data-kind="warn"]{color:#e2b06b;border-color:#5a4a2a}
+  .subtab{padding:6px 14px;border-radius:999px;font-size:13px;font-weight:600}
+  .subtab.active{background:var(--accent2);border-color:var(--accent2);color:#fff}
+  .ed-sub{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;background:var(--panel2)}
+  .ed-sub .shead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .ed-sub .sname{font-weight:700;font-size:14px}
+
+  .card{background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--radius);padding:18px;margin-bottom:18px}
+  .card h2{font-size:15px;margin:0 0 12px;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+
+  .opt-group{margin-bottom:16px}
+  .opt-group:last-child{margin-bottom:0}
+  .opt-group .gname{font-weight:700;margin-bottom:8px}
+  label.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;
+    border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer;
+    background:var(--panel2);transition:.12s}
+  label.opt:hover{border-color:var(--accent)}
+  label.opt.checked{border-color:var(--accent);background:#1b2436}
+  label.opt input{margin-top:3px;accent-color:var(--accent);transform:scale(1.15)}
+  label.opt .otxt{flex:1}
+
+  .preview-wrap{position:relative}
+  .preview-head{display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:8px;gap:12px;flex-wrap:wrap}
+  textarea#preview{width:100%;min-height:230px;resize:vertical;
+    background:#0b0d11;color:#e8eaed;border:1px solid var(--line);
+    border-radius:10px;padding:14px;font-family:"Cascadia Code",Consolas,Menlo,monospace;
+    font-size:15px;line-height:1.6;white-space:pre}
+  .copy-msg{color:var(--accent2);font-weight:600;font-size:14px;opacity:0;transition:.2s}
+  .copy-msg.show{opacity:1}
+
+  /* edit mode */
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px;font-weight:600}
+  .field input,.field textarea,.field select{width:100%;background:var(--panel2);
+    color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px 10px;
+    font-family:inherit;font-size:14px}
+  .field textarea{font-family:"Cascadia Code",Consolas,monospace;min-height:70px;resize:vertical}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .ed-variant{border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px;margin-bottom:16px;background:var(--panel)}
+  .ed-variant > .vhead{display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:12px;gap:10px}
+  .ed-variant > .vhead .vt{font-weight:700;font-size:16px}
+  .ed-group{border:1px dashed var(--line);border-radius:10px;padding:12px;margin-bottom:10px;background:var(--panel2)}
+  .ed-item{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+  .ed-item input{flex:1}
+  .grouphead{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+  .grouphead input{flex:1}
+  .grouphead select{width:auto}
+
+  .note{font-size:13px;color:var(--muted);background:var(--panel);
+    border:1px solid var(--line);border-left:3px solid var(--accent);
+    border-radius:8px;padding:10px 14px;margin-bottom:18px}
+  .hidden{display:none !important}
+  .filestat{font-size:12px;color:var(--muted)}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    background:var(--accent2);color:#fff;padding:10px 18px;border-radius:10px;
+    font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:50}
+  .toast.show{opacity:1}
+  @media(max-width:560px){.row2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏠 Masywny Dom — Generator ofert</h1>
+  <div class="toolbar">
+    <span id="serverStatus" class="srvstat" data-kind="">… łączenie</span>
+    <button id="btnMode">✏️ Tryb edycji</button>
+    <button id="btnSaveFile" class="good">💾 Zapisz do pliku</button>
+    <button id="btnLoadFile">📂 Wczytaj z pliku</button>
+    <button id="btnReset" class="danger sm">↺ Reset</button>
+  </div>
+</header>
+
+<main>
+  <div class="note" id="noteUse">
+    Dane pobierają się <b>z GitHub</b> (data.json). Edycje w aplikacji zapisują się tylko w tej przeglądarce
+    (localStorage) i znikają po odświeżeniu. Żeby zaktualizować dane dla wszystkich urządzeń:
+    <b>💾 Zapisz do pliku</b> → commit + push na gita → przy następnym otwarciu apka zaciągnie nowy JSON.
+    <span class="filestat" id="fileStat"></span>
+  </div>
+
+  <!-- TRYB UŻYWANIA -->
+  <section id="useView">
+    <div class="tabs" id="variantTabs"></div>
+    <div class="subtabs hidden" id="subTabs"></div>
+    <div class="card" id="optionsCard">
+      <h2>Opcje (zaznacz, treść dopisze się automatycznie)</h2>
+      <div id="optionsPanel"></div>
+    </div>
+    <div class="card preview-wrap">
+      <div class="preview-head">
+        <h2 style="margin:0">Gotowy tekst do skopiowania</h2>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span class="copy-msg" id="copyMsg">Skopiowano ✓</span>
+          <button class="primary" id="btnCopy">📋 Kopiuj</button>
+        </div>
+      </div>
+      <textarea id="preview" spellcheck="false"></textarea>
+      <p class="filestat" style="margin:8px 0 0">Możesz ręcznie poprawić tekst powyżej przed kopiowaniem. Zmiana opcji nadpisze poprawki.</p>
+    </div>
+  </section>
+
+  <!-- TRYB EDYCJI -->
+  <section id="editView" class="hidden">
+    <div class="note">Tu edytujesz warianty, ceny i opcje. Zmiany zapisują się od razu w przeglądarce.</div>
+    <div id="editList"></div>
+    <button class="primary" id="btnAddVariant">＋ Dodaj wariant</button>
+  </section>
+</main>
+
+<input type="file" id="fileInput" accept="application/json,.json" class="hidden">
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+/* ---------- Dane domyślne (seed) ---------- */
+/* Ceny bazowe = stan + płyta fundamentowa (cennik z 1.06.2026, aktualizacja MD100) */
+const DEFAULT_DATA = {
+  version: 2,
+  variants: [
+    {
+      id: "md69", name: "69 m²",
+      title: "🏠 Dom parterowy 69 m²",
+      subtitle: "",
+      body: "🔹 Stan surowy + płyta: 284 400 zł brutto\n🔹 Stan deweloperski + płyta: 471 100 zł brutto",
+      footer: "📩 oferty@masywnydom.pl\n🌍 MasywnyDom.pl",
+      optionGroups: []
+    },
+    {
+      id: "md86", name: "86 m²",
+      title: "🏠 Dom parterowy 86 m²",
+      subtitle: "",
+      body: "",
+      footer: "📩 oferty@masywnydom.pl\n🌍 MasywnyDom.pl",
+      optionGroups: [
+        {
+          id: "g86_garaz", name: "Garaż", mode: "single",
+          items: [
+            { id: "g86_g1", text: "🔹 Garaż jednostanowiskowy +96 800 zł, Płyta fundamentowa +15 900 zł" }
+          ]
+        }
+      ],
+      subvariants: [
+        {
+          id: "md86_2", name: "2 sypialnie",
+          subtitle: "2 sypialnie",
+          body: "🔹 Stan surowy + płyta: 312 400 zł brutto\n🔹 Stan deweloperski + płyta: 525 800 zł brutto"
+        },
+        {
+          id: "md86_3", name: "3 sypialnie",
+          subtitle: "3 sypialnie",
+          body: "🔹 Stan surowy + płyta: 321 000 zł brutto\n🔹 Stan deweloperski + płyta: 538 200 zł brutto"
+        }
+      ]
+    },
+    {
+      id: "md86_pop", name: "🌟 86 popularny",
+      title: "",
+      subtitle: "🌟 MD86 - Najpopularniejszy projekt w naszej ofercie! 🌟",
+      body: "💻 Koszty inwestycji (brutto, z płytą fundamentową):\n\n🔹 Stan surowy: 312 400 zł\n🔹 Stan deweloperski: 525 800 zł",
+      footer: "Zapraszamy do kontaktu! 👋\n📧 oferty@masywnydom.pl\n🌐 www.MasywnyDom.pl",
+      optionGroups: []
+    },
+    {
+      id: "md100", name: "100 m²",
+      title: "🏠 Dom parterowy 100 m²",
+      subtitle: "3 sypialnie | garderoba | 2 łazienki",
+      body: "🔹 Stan surowy + płyta: 356 200 zł brutto\n🔹 Stan deweloperski + płyta: 596 600 zł brutto",
+      footer: "📩 oferty@masywnydom.pl\n🌍 MasywnyDom.pl",
+      optionGroups: [
+        {
+          id: "g_garaz", name: "Garaż", mode: "single",
+          items: [
+            { id: "g_g1", text: "🔹 Garaż jednostanowiskowy +96 800 zł, Płyta fundamentowa +15 900 zł" },
+            { id: "g_g2", text: "🔹 Garaż dwustanowiskowy od frontu domu +144 900 zł, Płyta fundamentowa +21 900 zł" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "multi", name: "📋 Multi",
+      title: "",
+      subtitle: "",
+      body: "Masywny Dom zajmuje się budową domów modułowych z drewna CLT\nRealizujemy inwestycje na terenie całego kraju.\n\nAktualnie w ofercie mamy m.in.:\n🔹 Dom 69 m²: stan surowy – 284 400 zł brutto, stan deweloperski – 471 100 zł brutto\n🔹 Dom 86 m²: stan surowy – 312 400 zł brutto, stan deweloperski – 525 800 zł brutto\n🔹 Dom 100 m²: stan surowy – 356 200 zł brutto, stan deweloperski – 596 600 zł brutto\n\n🔸 Wykonujemy także projekty indywidualne\n\nCeny uwzględniają płytę fundamentową\nW każdym z domów jest możliwość wykupienia pakietu poddasze\n\nZachęcamy do obejrzenia domu pokazowego:\nhttps://masywnydom.pl/dom-pokazowy",
+      footer: "📩 oferty@masywnydom.pl\n🌍 MasywnyDom.pl",
+      optionGroups: []
+    }
+  ]
+};
+
+const LS_KEY = "masywnydom_oferty_v7";
+
+/* ---------- Odczyt danych z GitHub raw ---------- */
+const DATA_URL = "https://raw.githubusercontent.com/ScarsX2/mdtools/main/data.json";
+let online = false;
+
+/* ---------- Stan ---------- */
+let data;
+let activeVariantId = null;
+let mode = "use";                 // "use" | "edit"
+let selections = {};              // { [groupId]: [itemId, ...] }
+let activeSub = {};               // { [variantId]: subvariantId }
+let fileHandle = null;            // File System Access API handle (jeśli dostępne)
+
+/* ---------- Pomocnicze ---------- */
+const $ = s => document.querySelector(s);
+const clone = o => JSON.parse(JSON.stringify(o));
+const uid = () => "x" + Math.random().toString(36).slice(2, 9);
+const esc = s => (s ?? "").replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+function load() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    data = raw ? JSON.parse(raw) : clone(DEFAULT_DATA);
+  } catch { data = clone(DEFAULT_DATA); }
+  if (!data || !Array.isArray(data.variants) || !data.variants.length) data = clone(DEFAULT_DATA);
+  if (!data.variants.find(v => v.id === activeVariantId)) activeVariantId = data.variants[0].id;
+}
+function persist() {
+  localStorage.setItem(LS_KEY, JSON.stringify(data));
+}
+
+/* ---------- Fetch data z gita ---------- */
+function setServerStatus(msg, kind) {
+  const el = document.getElementById("serverStatus");
+  if (!el) return;
+  el.textContent = msg;
+  el.dataset.kind = kind || "";
+}
+async function loadFromGit() {
+  if (!DATA_URL || DATA_URL.includes("USER/REPO")) {
+    setServerStatus("⚠️ Ustaw DATA_URL w index.html", "warn");
+    return false;
+  }
+  try {
+    const r = await fetch(DATA_URL + "?t=" + Date.now(), { cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const obj = await r.json();
+    if (obj && Array.isArray(obj.variants) && obj.variants.length) {
+      data = obj;
+      if (!data.variants.find(v => v.id === activeVariantId)) activeVariantId = data.variants[0].id;
+      selections = {}; activeSub = {};
+      online = true;
+      setServerStatus("🔗 Dane z GitHub ✓", "ok");
+      return true;
+    }
+    online = false;
+    setServerStatus("⚠️ Git zwrócił puste dane", "warn");
+    return false;
+  } catch (e) {
+    online = false;
+    setServerStatus("💾 Offline (używam lokalnych)", "warn");
+    return false;
+  }
+}
+
+function activeVariant() { return data.variants.find(v => v.id === activeVariantId) || data.variants[0]; }
+
+function hasSubs(v) { return Array.isArray(v.subvariants) && v.subvariants.length > 0; }
+function activeSubOf(v) {
+  if (!hasSubs(v)) return null;
+  const id = activeSub[v.id];
+  return v.subvariants.find(s => s.id === id) || v.subvariants[0];
+}
+/* Zwraca efektywny podtytuł/treść — z podkategorii, jeśli wariant ją ma */
+function effective(v) {
+  const sv = activeSubOf(v);
+  return {
+    title: v.title,
+    subtitle: sv ? sv.subtitle : v.subtitle,
+    body: sv ? sv.body : v.body,
+    footer: v.footer
+  };
+}
+
+/* ---------- Składanie tekstu ---------- */
+function selectedTexts(v) {
+  const out = [];
+  (v.optionGroups || []).forEach(g => {
+    const sel = selections[g.id] || [];
+    (g.items || []).forEach(it => { if (sel.includes(it.id)) out.push(it.text); });
+  });
+  return out;
+}
+function assemble(v) {
+  const e = effective(v);
+  const blocks = [];
+  const head = [e.title, e.subtitle].filter(s => s && s.trim()).map(s => s.trim()).join("\n");
+  if (head) blocks.push(head);
+
+  const bodyLines = [];
+  if (e.body && e.body.trim()) bodyLines.push(e.body.replace(/\s+$/,""));
+  selectedTexts(v).forEach(t => { if (t && t.trim()) bodyLines.push(t.trim()); });
+  if (bodyLines.length) blocks.push(bodyLines.join("\n"));
+
+  if (e.footer && e.footer.trim()) blocks.push(e.footer.trim());
+  return blocks.join("\n\n");
+}
+function updatePreview() {
+  const ta = $("#preview");
+  if (ta) ta.value = assemble(activeVariant());
+}
+
+/* ---------- Render: tryb używania ---------- */
+function renderTabs() {
+  const wrap = $("#variantTabs");
+  wrap.innerHTML = "";
+  data.variants.forEach(v => {
+    const b = document.createElement("button");
+    b.className = "tab" + (v.id === activeVariantId ? " active" : "");
+    b.textContent = v.name || v.title || v.id;
+    b.onclick = () => { activeVariantId = v.id; renderUse(); };
+    wrap.appendChild(b);
+  });
+}
+function renderSubTabs() {
+  const v = activeVariant();
+  const wrap = $("#subTabs");
+  wrap.innerHTML = "";
+  if (!hasSubs(v)) { wrap.classList.add("hidden"); return; }
+  wrap.classList.remove("hidden");
+  if (!activeSub[v.id] || !v.subvariants.find(s => s.id === activeSub[v.id])) {
+    activeSub[v.id] = v.subvariants[0].id;
+  }
+  v.subvariants.forEach(sv => {
+    const b = document.createElement("button");
+    b.className = "subtab" + (sv.id === activeSub[v.id] ? " active" : "");
+    b.textContent = sv.name || "—";
+    b.onclick = () => { activeSub[v.id] = sv.id; renderUse(); };
+    wrap.appendChild(b);
+  });
+}
+function renderOptions() {
+  const v = activeVariant();
+  const panel = $("#optionsPanel");
+  const card = $("#optionsCard");
+  panel.innerHTML = "";
+  const groups = v.optionGroups || [];
+  if (!groups.length) {
+    card.classList.add("hidden");
+    return;
+  }
+  card.classList.remove("hidden");
+
+  groups.forEach(g => {
+    const gWrap = document.createElement("div");
+    gWrap.className = "opt-group";
+    const gn = document.createElement("div");
+    gn.className = "gname";
+    gn.textContent = (g.name || "Opcje") + (g.mode === "single" ? "  (wybierz jedną)" : "  (zaznacz dowolne)");
+    gWrap.appendChild(gn);
+
+    (g.items || []).forEach(it => {
+      const sel = selections[g.id] || [];
+      const checked = sel.includes(it.id);
+      const lab = document.createElement("label");
+      lab.className = "opt" + (checked ? " checked" : "");
+      const input = document.createElement("input");
+      input.type = g.mode === "single" ? "radio" : "checkbox";
+      input.name = "grp_" + g.id;
+      input.checked = checked;
+      input.onchange = () => {
+        if (g.mode === "single") {
+          selections[g.id] = input.checked ? [it.id] : [];
+        } else {
+          const set = new Set(selections[g.id] || []);
+          input.checked ? set.add(it.id) : set.delete(it.id);
+          selections[g.id] = [...set];
+        }
+        renderOptions(); updatePreview();
+      };
+      const span = document.createElement("span");
+      span.className = "otxt";
+      span.textContent = it.text;
+      lab.appendChild(input); lab.appendChild(span);
+      gWrap.appendChild(lab);
+    });
+
+    if (g.mode === "single") {
+      const sel = selections[g.id] || [];
+      const lab = document.createElement("label");
+      lab.className = "opt" + (sel.length === 0 ? " checked" : "");
+      const input = document.createElement("input");
+      input.type = "radio"; input.name = "grp_" + g.id; input.checked = sel.length === 0;
+      input.onchange = () => { selections[g.id] = []; renderOptions(); updatePreview(); };
+      const span = document.createElement("span");
+      span.className = "otxt"; span.style.color = "var(--muted)";
+      span.textContent = "— brak —";
+      lab.appendChild(input); lab.appendChild(span);
+      gWrap.appendChild(lab);
+    }
+    panel.appendChild(gWrap);
+  });
+}
+function renderUse() {
+  renderTabs();
+  renderSubTabs();
+  renderOptions();
+  updatePreview();
+}
+
+/* ---------- Render: tryb edycji ---------- */
+function bindInput(el, obj, key) {
+  el.addEventListener("input", () => { obj[key] = el.value; persist(); });
+}
+function renderEdit() {
+  const list = $("#editList");
+  list.innerHTML = "";
+  data.variants.forEach((v, vi) => {
+    const card = document.createElement("div");
+    card.className = "ed-variant";
+
+    const head = document.createElement("div");
+    head.className = "vhead";
+    head.innerHTML = `<span class="vt">${esc(v.name || v.title || v.id)}</span>`;
+    const del = document.createElement("button");
+    del.className = "danger sm"; del.textContent = "Usuń wariant";
+    del.onclick = () => {
+      if (data.variants.length <= 1) { toast("Musi zostać co najmniej jeden wariant"); return; }
+      if (confirm("Usunąć wariant „" + (v.name || v.id) + "”?")) {
+        data.variants.splice(vi, 1);
+        if (activeVariantId === v.id) activeVariantId = data.variants[0].id;
+        persist(); renderEdit();
+      }
+    };
+    head.appendChild(del);
+    card.appendChild(head);
+
+    const r2 = document.createElement("div"); r2.className = "row2";
+    r2.appendChild(field("Etykieta zakładki", "input", v, "name"));
+    r2.appendChild(field("Tytuł", "input", v, "title"));
+    card.appendChild(r2);
+
+    if (hasSubs(v)) {
+      const lbl = document.createElement("label");
+      lbl.style.cssText = "font-size:13px;color:var(--muted);font-weight:600;display:block;margin:6px 0";
+      lbl.textContent = "Podkategorie (osobne ceny / liczba sypialni)";
+      card.appendChild(lbl);
+      v.subvariants.forEach((sv, si) => {
+        const box = document.createElement("div");
+        box.className = "ed-sub";
+        const sh = document.createElement("div");
+        sh.className = "shead";
+        sh.innerHTML = `<span class="sname">${esc(sv.name || "Podkategoria")}</span>`;
+        const sdel = document.createElement("button");
+        sdel.className = "danger sm"; sdel.textContent = "Usuń wersję";
+        sdel.onclick = () => { v.subvariants.splice(si, 1); if (!v.subvariants.length) delete v.subvariants; persist(); renderEdit(); };
+        sh.appendChild(sdel);
+        box.appendChild(sh);
+        box.appendChild(field("Nazwa wersji (zakładka)", "input", sv, "name"));
+        box.appendChild(field("Podtytuł", "input", sv, "subtitle"));
+        box.appendChild(field("Treść / ceny", "textarea", sv, "body"));
+        card.appendChild(box);
+      });
+      const addSub = document.createElement("button");
+      addSub.className = "sm"; addSub.textContent = "＋ Dodaj wersję";
+      addSub.onclick = () => {
+        v.subvariants.push({ id: uid(), name: "Nowa wersja", subtitle: "", body: "🔹 Stan surowy + płyta: \n🔹 Stan deweloperski + płyta: " });
+        persist(); renderEdit();
+      };
+      card.appendChild(addSub);
+    } else {
+      card.appendChild(field("Podtytuł", "input", v, "subtitle"));
+      card.appendChild(field("Treść / ceny (każda linia osobno)", "textarea", v, "body"));
+      const addSub = document.createElement("button");
+      addSub.className = "sm"; addSub.textContent = "＋ Dodaj podkategorię (np. liczba sypialni)";
+      addSub.style.cssText = "margin-bottom:12px";
+      addSub.onclick = () => {
+        v.subvariants = [{ id: uid(), name: "Wersja 1", subtitle: v.subtitle || "", body: v.body || "" }];
+        persist(); renderEdit();
+      };
+      card.appendChild(addSub);
+    }
+    card.appendChild(field("Stopka (kontakt)", "textarea", v, "footer"));
+
+    // grupy opcji
+    const gh = document.createElement("div");
+    gh.innerHTML = `<label style="font-size:13px;color:var(--muted);font-weight:600;display:block;margin:6px 0">Grupy opcji</label>`;
+    card.appendChild(gh);
+
+    (v.optionGroups || []).forEach((g, gi) => {
+      const gBox = document.createElement("div");
+      gBox.className = "ed-group";
+
+      const ghead = document.createElement("div");
+      ghead.className = "grouphead";
+      const gname = document.createElement("input");
+      gname.value = g.name || ""; gname.placeholder = "Nazwa grupy (np. Garaż)";
+      bindInput(gname, g, "name");
+      const gmode = document.createElement("select");
+      gmode.innerHTML = `<option value="single">Pojedynczy wybór (lub)</option><option value="multi">Wielokrotny wybór</option>`;
+      gmode.value = g.mode || "single";
+      gmode.onchange = () => { g.mode = gmode.value; persist(); };
+      const gdel = document.createElement("button");
+      gdel.className = "danger sm"; gdel.textContent = "✕";
+      gdel.title = "Usuń grupę";
+      gdel.onclick = () => { v.optionGroups.splice(gi, 1); persist(); renderEdit(); };
+      ghead.appendChild(gname); ghead.appendChild(gmode); ghead.appendChild(gdel);
+      gBox.appendChild(ghead);
+
+      (g.items || []).forEach((it, ii) => {
+        const row = document.createElement("div");
+        row.className = "ed-item";
+        const itxt = document.createElement("input");
+        itxt.value = it.text || ""; itxt.placeholder = "Treść opcji (np. 🔹 Garaż... +96 800 zł)";
+        bindInput(itxt, it, "text");
+        const idel = document.createElement("button");
+        idel.className = "danger sm"; idel.textContent = "✕";
+        idel.onclick = () => { g.items.splice(ii, 1); persist(); renderEdit(); };
+        row.appendChild(itxt); row.appendChild(idel);
+        gBox.appendChild(row);
+      });
+
+      const addItem = document.createElement("button");
+      addItem.className = "sm"; addItem.textContent = "＋ pozycja";
+      addItem.onclick = () => { (g.items = g.items || []).push({ id: uid(), text: "" }); persist(); renderEdit(); };
+      gBox.appendChild(addItem);
+
+      card.appendChild(gBox);
+    });
+
+    const addGroup = document.createElement("button");
+    addGroup.className = "sm"; addGroup.textContent = "＋ Dodaj grupę opcji";
+    addGroup.onclick = () => {
+      (v.optionGroups = v.optionGroups || []).push({ id: uid(), name: "", mode: "single", items: [{ id: uid(), text: "" }] });
+      persist(); renderEdit();
+    };
+    card.appendChild(addGroup);
+
+    list.appendChild(card);
+  });
+}
+function field(labelText, type, obj, key) {
+  const wrap = document.createElement("div");
+  wrap.className = "field";
+  const lab = document.createElement("label");
+  lab.textContent = labelText;
+  const el = document.createElement(type === "textarea" ? "textarea" : "input");
+  el.value = obj[key] || "";
+  bindInput(el, obj, key);
+  wrap.appendChild(lab); wrap.appendChild(el);
+  return wrap;
+}
+
+/* ---------- Przełączanie trybu ---------- */
+function setMode(m) {
+  mode = m;
+  $("#useView").classList.toggle("hidden", m !== "use");
+  $("#editView").classList.toggle("hidden", m !== "edit");
+  $("#noteUse").classList.toggle("hidden", m !== "use");
+  $("#btnMode").textContent = m === "use" ? "✏️ Tryb edycji" : "✓ Gotowe (powrót)";
+  if (m === "use") { load.skip = true; renderUse(); } else renderEdit();
+}
+
+/* ---------- Plik: zapis / odczyt ---------- */
+function setFileStat(msg) { $("#fileStat").textContent = msg ? "• " + msg : ""; }
+
+async function saveToFile() {
+  const json = JSON.stringify(data, null, 2);
+  if (window.showSaveFilePicker) {
+    try {
+      if (!fileHandle) {
+        fileHandle = await window.showSaveFilePicker({
+          suggestedName: "masywnydom-oferty.json",
+          types: [{ description: "Plik JSON", accept: { "application/json": [".json"] } }]
+        });
+      }
+      const w = await fileHandle.createWritable();
+      await w.write(json); await w.close();
+      setFileStat("zapisano: " + fileHandle.name);
+      toast("Zapisano do pliku ✓");
+      return;
+    } catch (e) {
+      if (e && e.name === "AbortError") return;
+      // przy błędzie — fallback do pobrania
+    }
+  }
+  downloadJson(json);
+}
+function downloadJson(json) {
+  const blob = new Blob([json], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "masywnydom-oferty.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast("Pobrano plik JSON ✓");
+}
+function applyImported(text) {
+  let obj;
+  try { obj = JSON.parse(text); }
+  catch { toast("Błąd: nieprawidłowy plik JSON"); return; }
+  if (!obj || !Array.isArray(obj.variants)) { toast("Błąd: brak listy wariantów w pliku"); return; }
+  data = obj;
+  if (!data.variants.find(v => v.id === activeVariantId)) activeVariantId = data.variants[0]?.id;
+  selections = {}; activeSub = {};
+  persist();
+  (mode === "use") ? renderUse() : renderEdit();
+  toast("Wczytano dane ✓");
+}
+async function loadFromFile() {
+  if (window.showOpenFilePicker) {
+    try {
+      const [h] = await window.showOpenFilePicker({
+        types: [{ description: "Plik JSON", accept: { "application/json": [".json"] } }]
+      });
+      fileHandle = h;
+      const f = await h.getFile();
+      applyImported(await f.text());
+      setFileStat("wczytano: " + h.name);
+      return;
+    } catch (e) { if (e && e.name === "AbortError") return; }
+  }
+  $("#fileInput").click();
+}
+
+/* ---------- Kopiowanie ---------- */
+async function copyText() {
+  const ta = $("#preview");
+  try {
+    await navigator.clipboard.writeText(ta.value);
+  } catch {
+    ta.select(); document.execCommand("copy");
+    window.getSelection().removeAllRanges();
+  }
+  const m = $("#copyMsg");
+  m.classList.add("show");
+  setTimeout(() => m.classList.remove("show"), 1400);
+}
+
+/* ---------- Toast ---------- */
+let toastT;
+function toast(msg) {
+  const t = $("#toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove("show"), 1800);
+}
+
+/* ---------- Init ---------- */
+function init() {
+  load();
+  persist();
+  renderUse();
+
+  $("#btnMode").onclick = () => setMode(mode === "use" ? "edit" : "use");
+  $("#btnCopy").onclick = copyText;
+  $("#btnSaveFile").onclick = saveToFile;
+  $("#btnLoadFile").onclick = loadFromFile;
+  $("#btnAddVariant").onclick = () => {
+    data.variants.push({
+      id: uid(), name: "Nowy", title: "🏠 ", subtitle: "",
+      body: "🔹 Stan surowy + płyta: \n🔹 Stan deweloperski + płyta: ",
+      footer: "📩 oferty@masywnydom.pl\n🌍 MasywnyDom.pl",
+      optionGroups: []
+    });
+    persist(); renderEdit();
+  };
+  $("#btnReset").onclick = () => {
+    if (confirm("Przywrócić dane domyślne? Twoje zmiany w przeglądarce zostaną nadpisane.")) {
+      data = clone(DEFAULT_DATA);
+      activeVariantId = data.variants[0].id;
+      selections = {}; activeSub = {}; persist();
+      (mode === "use") ? renderUse() : renderEdit();
+      toast("Przywrócono dane domyślne");
+    }
+  };
+  $("#fileInput").onchange = e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = () => applyImported(r.result);
+    r.readAsText(f);
+    e.target.value = "";
+  };
+
+  if (!window.showSaveFilePicker) {
+    setFileStat("ta przeglądarka pobierze/wczyta plik JSON ręcznie");
+  }
+
+  // W tle: pobierz aktualne dane z GitHub raw i nadpisz lokalne
+  loadFromGit().then(loaded => {
+    if (loaded) {
+      localStorage.setItem(LS_KEY, JSON.stringify(data));
+      (mode === "use") ? renderUse() : renderEdit();
+    }
+  });
+}
+init();
+</script>
+</body>
+</html>

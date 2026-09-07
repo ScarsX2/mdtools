@@ -1,0 +1,92 @@
+{
+  "version": 2,
+  "variants": [
+    {
+      "id": "md69",
+      "name": "69 m²",
+      "title": "🏠 Dom parterowy 69 m²",
+      "subtitle": "",
+      "body": "🔹 Stan surowy + płyta: 284 400 zł brutto\n🔹 Stan deweloperski + płyta: 471 100 zł brutto",
+      "footer": "📩 oferty@masywnydom.pl\n🌍 MasywnyDom.pl",
+      "optionGroups": []
+    },
+    {
+      "id": "md86",
+      "name": "86 m²",
+      "title": "🏠 Dom parterowy 86 m²",
+      "subtitle": "",
+      "body": "",
+      "footer": "📩 oferty@masywnydom.pl\n🌍 MasywnyDom.pl",
+      "optionGroups": [
+        {
+          "id": "g86_garaz",
+          "name": "Garaż",
+          "mode": "single",
+          "items": [
+            {
+              "id": "g86_g1",
+              "text": "🔹 Garaż jednostanowiskowy +96 800 zł, Płyta fundamentowa +15 900 zł"
+            }
+          ]
+        }
+      ],
+      "subvariants": [
+        {
+          "id": "md86_2",
+          "name": "2 sypialnie",
+          "subtitle": "2 sypialnie",
+          "body": "🔹 Stan surowy + płyta: 312 400 zł brutto\n🔹 Stan deweloperski + płyta: 525 800 zł brutto"
+        },
+        {
+          "id": "md86_3",
+          "name": "3 sypialnie",
+          "subtitle": "3 sypialnie",
+          "body": "🔹 Stan surowy + płyta: 321 000 zł brutto\n🔹 Stan deweloperski + płyta: 538 200 zł brutto"
+        }
+      ]
+    },
+    {
+      "id": "md86_pop",
+      "name": "🌟 86 popularny",
+      "title": "",
+      "subtitle": "🌟 MD86 - Najpopularniejszy projekt w naszej ofercie! 🌟",
+      "body": "💻 Koszty inwestycji (brutto, z płytą fundamentową):\n\n🔹 Stan surowy: 312 400 zł\n🔹 Stan deweloperski: 525 800 zł",
+      "footer": "Zapraszamy do kontaktu! 👋\n📧 oferty@masywnydom.pl\n🌐 www.MasywnyDom.pl",
+      "optionGroups": []
+    },
+    {
+      "id": "md100",
+      "name": "100 m²",
+      "title": "🏠 Dom parterowy 100 m²",
+      "subtitle": "3 sypialnie | garderoba | 2 łazienki",
+      "body": "🔹 Stan surowy + płyta: 356 200 zł brutto\n🔹 Stan deweloperski + płyta: 596 600 zł brutto",
+      "footer": "📩 oferty@masywnydom.pl\n🌍 MasywnyDom.pl",
+      "optionGroups": [
+        {
+          "id": "g_garaz",
+          "name": "Garaż",
+          "mode": "single",
+          "items": [
+            {
+              "id": "g_g1",
+              "text": "🔹 Garaż jednostanowiskowy +96 800 zł, Płyta fundamentowa +15 900 zł"
+            },
+            {
+              "id": "g_g2",
+              "text": "🔹 Garaż dwustanowiskowy od frontu domu +144 900 zł, Płyta fundamentowa +21 900 zł"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "multi",
+      "name": "📋 Multi",
+      "title": "",
+      "subtitle": "",
+      "body": "Masywny Dom zajmuje się budową domów modułowych z drewna CLT\nRealizujemy inwestycje na terenie całego kraju.\n\nAktualnie w ofercie mamy m.in.:\n🔹 Dom 69 m²: stan surowy – 284 400 zł brutto, stan deweloperski – 471 100 zł brutto\n🔹 Dom 86 m²: stan surowy – 312 400 zł brutto, stan deweloperski – 525 800 zł brutto\n🔹 Dom 100 m²: stan surowy – 356 200 zł brutto, stan deweloperski – 596 600 zł brutto\n\n🔸 Wykonujemy także projekty indywidualne\n\nCeny uwzględniają płytę fundamentową\nW każdym z domów jest możliwość wykupienia pakietu poddasze\n\nZachęcamy do obejrzenia domu pokazowego:\nhttps://masywnydom.pl/dom-pokazowy",
+      "footer": "📩 oferty@masywnydom.pl\n🌍 MasywnyDom.pl",
+      "optionGroups": []
+    }
+  ]
+}
